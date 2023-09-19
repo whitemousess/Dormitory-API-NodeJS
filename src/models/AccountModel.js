@@ -9,7 +9,7 @@ const schema = new Schema({
     email: { type: String },
     phone: { type: Number },
     avatarUrl: { type: String },
-    role: { type: Number, default: 0 },
+    role: { type: Number, default: 1 },
 },{
     timestamps: true
 })

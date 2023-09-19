@@ -7,7 +7,7 @@ module.exports = function checkLogin(req, res, next) {
     const token = authorizationHeader && authorizationHeader.split(" ")[1];
     if (!token) res.status(403);
 
-    jwt.verify(token, "dormitoy", (err, data) => {
+    jwt.verify(token, process.env.ACCESS_TOKEN, (err, data) => {
       AuthModel.findOne({ _id: data._id })
         .then((account) => {
           if (account) {

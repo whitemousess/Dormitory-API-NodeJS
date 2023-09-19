@@ -2,7 +2,9 @@ const createError = require('http-errors');
 const express = require('express')
 const db = require('./config/db')
 const route = require("./routes");
-
+const dotenv = require('dotenv');
+dotenv.config();
+ 
 const app = express()
 const port = 1407
 
