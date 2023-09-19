@@ -7,7 +7,7 @@ const schema = new Schema({
     fullName: { type: String },
     sex: { type: Number },
     email: { type: String },
-    phone: { type: Number },
+    phone: { type: String },
     avatarUrl: { type: String },
     role: { type: Number, default: 1 },
 },{

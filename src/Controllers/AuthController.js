@@ -35,6 +35,8 @@ module.exports = {
       if (account) {
         res.status(409).json({ message: "username already taken" });
       } else {
+        req.body.role = 1;
+        req.body.password = "sv" + req.body.username;
         const account = new AuthModel(req.body);
         account
           .save()
@@ -47,14 +49,14 @@ module.exports = {
   },
 
   deleteUser(req, res, next) {
-    if(req.account.role === 0){
+    if (req.account.role === 0) {
       AuthModel.deleteOne({ _id: req.params.id })
-      .then((account) => {
-        res.json({ data: account });
-      })
-      .catch((err) => res.json({ err: err }));
-    }else{
-      res.json({error: "Không đủ quyền để xóa!"})
+        .then((account) => {
+          res.json({ data: account });
+        })
+        .catch((err) => res.json({ err: err }));
+    } else {
+      res.json({ error: "Không đủ quyền để xóa!" });
     }
   },
 };

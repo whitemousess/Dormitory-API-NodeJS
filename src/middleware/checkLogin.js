@@ -16,10 +16,10 @@ module.exports = function checkLogin(req, res, next) {
           }
         })
         .catch((next) => {
-          res.status(500).json({ error: "error" });
+          res.sendStatus(500);
         });
     });
   } catch (error) {
-    res.status(500).json({ error: "error Token Authentication" });
+    res.sendStatus(403);
   }
 };
