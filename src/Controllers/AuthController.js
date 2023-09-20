@@ -26,7 +26,7 @@ module.exports = {
   },
 
   getCurrent(req, res, next) {
-    res.json({ message: req.account });
+    res.json({ data: req.account });
   },
 
   createUser(req, res, next) {
