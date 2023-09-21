@@ -30,22 +30,24 @@ module.exports = {
   },
 
   createUser(req, res, next) {
-    const { username, email } = req.body;
-    AuthModel.findOne({ $or: [{ username }, { email }] }).then((account) => {
-      if (account) {
-        res.status(409).json({ message: "username already taken" });
-      } else {
+    AuthModel.findOne()
+    .sort({ masv: -1 })
+    .then((data) => {
+        let nextMasv = 19999;
+        if (data) nextMasv = data.masv + 1
+        req.body.masv = nextMasv;
         req.body.role = 1;
-        req.body.password = "sv" + req.body.username;
+        req.body.password = "sv" + nextMasv;
+        req.body.email = nextMasv + "@gmail.com"
+        req.body.username = nextMasv
         const account = new AuthModel(req.body);
         account
           .save()
           .then((account) => {
             res.status(201).json({ data: account });
           })
-          .catch(next);
-      }
-    });
+          .catch((error) => res.json({ error: error}));
+      });
   },
 
   deleteUser(req, res, next) {
