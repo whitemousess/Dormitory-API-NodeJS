@@ -11,8 +11,18 @@ module.exports = {
       });
   },
 
+  getOneStudentManager(req, res, next) {
+    AuthModel.findOne({ _id: req.params.id })
+      .then((student) => {
+        res.json({ data: student });
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  },
+
   editStudent(req, res, next) {
-    AuthModel.updateOne({ _id: req.params.id },req.body)
+    AuthModel.updateOne({ _id: req.params.id }, req.body)
       .then((student) => {
         res.json({ data: student });
       })
@@ -29,5 +39,5 @@ module.exports = {
       .catch((err) => {
         res.json({ error: err });
       });
-  }
+  },
 };
