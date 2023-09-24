@@ -31,7 +31,7 @@ module.exports = {
   },
 
   getAllUser(req, res, next) {
-    AuthModel.find({role: 0})
+    AuthModel.find({ role: 0 })
       .then((data) => {
         res.json({ data: data });
       })
