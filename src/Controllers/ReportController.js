@@ -2,18 +2,20 @@ const ReportModel = require("../models/ReportModel");
 
 module.exports = {
   createReport(req, res, next) {
-    req.body.masv = req.account.masv;
-    req.body.fullName = req.account.fullName;
+    req.body.ma_sv = req.account._id;
     const report = new ReportModel(req.body);
     report.save().then((report) => res.json(report));
   },
 
   getReport(req, res, next) {
-    ReportModel.find().then((report) => res.json({ data: report }));
+    ReportModel.find().populate("ma_sv").then((report) => res.json({ data: report }));
   },
 
-  successReport(req, res, next) {
-    req.body.status = 1
+  getReportUser(req, res, next) {
+    ReportModel.find({ma_sv: req.account._id}).then((report) => res.json({ data: report }));
+  },
+
+  successReport(req, res, next) { 
     ReportModel.findOneAndUpdate({ _id: req.params.id },req.body).then((report) =>
       res.json({ data: report })
     );

@@ -3,8 +3,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    masv: { type: String },
-    fullName: { type: String },
+    ma_sv: { type: Schema.Types.ObjectId, ref: 'Account', required: true },
     title: { type: String },
     content: { type: String },
     status: { type: Number , default: 0 },
