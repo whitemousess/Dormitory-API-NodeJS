@@ -1,4 +1,4 @@
-const RoomModel = require("../models/RoomModel");
+const RoomModel = require("../models/Room.model");
 
 module.exports = {
   getManagerRoom(req, res, next) {

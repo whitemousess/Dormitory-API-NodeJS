@@ -3,7 +3,7 @@ const router = express.Router();
 const checkLogin = require("../middleware/checkLogin");
 const upload = require("../middleware/upload");
 
-const AuthControllers = require("../Controllers/AuthController");
+const AuthControllers = require("../Controllers/Auth.controller");
 
 // create user
 router.post("/create-user", checkLogin,upload.single("avatar"),AuthControllers.createUser)

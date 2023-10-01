@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const AuthModel = require("../models/AccountModel");
+const AuthModel = require("../models/Account.model");
 
 module.exports = function checkLogin(req, res, next) {
   try {

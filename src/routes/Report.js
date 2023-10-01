@@ -1,13 +1,12 @@
 const express = require("express");
 const router = express.Router();
-const checkLogin = require("../middleware/checkLogin");
-const ReportController = require("../Controllers/ReportController");
+const ReportController = require("../Controllers/Report.controller");
 
-router.get("/get-report", checkLogin, ReportController.getReport);
-router.get("/get-report-user", checkLogin, ReportController.getReportUser);
-router.post("/create-report", checkLogin, ReportController.createReport);
+router.get("/get-report", ReportController.getReport);
+router.get("/get-report-user", ReportController.getReportUser);
+router.post("/create-report", ReportController.createReport);
 
-router.put("/:id/success-report", checkLogin, ReportController.successReport);
-router.delete("/:id/delete-report", checkLogin, ReportController.deleteReport);
+router.put("/:id/success-report", ReportController.successReport);
+router.delete("/:id/delete-report", ReportController.deleteReport);
 
 module.exports = router;

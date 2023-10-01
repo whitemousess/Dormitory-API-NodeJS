@@ -1,10 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const upload = require("../middleware/upload");
 
-const checkLogin = require("../middleware/checkLogin");
-const StudentController = require("../Controllers/StudentController");
+const StudentController = require("../Controllers/Student.controller");
 
-router.get("/get-students",checkLogin, StudentController.getStudentManager);
+router.get("/get-students", StudentController.getStudentManager);
 
 module.exports = router;
