@@ -1,4 +1,4 @@
-const BillModel = require("../models/Bill.model");
+const BillModel = require("../models/BillService.model");
 
 module.exports = {
   getAllService(req, res, next) {
@@ -9,7 +9,7 @@ module.exports = {
   },
 
   getUserService(req, res, next) {
-    BillModel.find({masv: req.account._id})
+    BillModel.find({ masv: req.account._id })
       .populate(["masv", "id_service"])
       .then((service) => res.json({ data: service }))
       .catch((err) => res.json({ error: err }));
@@ -26,5 +26,11 @@ module.exports = {
       .catch((err) => {
         res.json({ error: err });
       });
+  },
+
+  deleteRequestService(req, res, next) {
+    BillModel.findOneAndDelete({ _id: req.params.id })
+      .then((bill) => res.json({ susses: "OK", data: bill }))
+      .catch((error) => console.log(error));
   },
 };
