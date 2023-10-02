@@ -8,6 +8,13 @@ module.exports = {
       .catch((error) => console.log(error));
   },
 
+  getElectricRoom(req, res, next) {
+    BillElectric.findOne({ room_id: req.params.room_id})
+      .populate("room_id")
+      .then((electric) => res.json({ data: electric }))
+      .catch((error) => console.log(error));
+  },
+
   getOneElectric(req, res, next) {
     BillElectric.findOne({ _id: req.params.id })
       .populate("room_id")

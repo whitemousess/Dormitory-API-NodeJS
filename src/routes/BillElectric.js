@@ -3,6 +3,7 @@ const router = express.Router();
 const BillServiceController = require('../Controllers/BillElectric.controller');
 
 router.get('/get-electric',BillServiceController.getElectric)
+router.get('/get-electric-room/:room_id',BillServiceController.getElectricRoom)
 router.get('/:id/get-one-electric',BillServiceController.getOneElectric)
 
 router.post('/create-bill',BillServiceController.createBill)

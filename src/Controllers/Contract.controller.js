@@ -9,6 +9,13 @@ module.exports = {
       .catch((err) => res.json({ error: err }));
   },
 
+  getContractStudent(req,res, next) {
+    ContractModel.findOne({ masv: req.account._id })
+      .populate(["masv", "room_id", "user_id"])
+      .then((contract) => res.json({ data: contract }))
+      .catch((err) => res.json({ error: err }));
+  },
+
   getLiquidation(req, res, next) {
     ContractModel.find({ liquidation: 1 })
       .populate(["masv", "room_id", "user_id"])
