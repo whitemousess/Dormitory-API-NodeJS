@@ -109,7 +109,7 @@ module.exports = {
   editUser(req, res, next) {
     AuthModel.findOne({ _id: req.params.id }).then((user) => {
       if (!req.file) {
-        req.body.avatarUrl = null;
+        req.body.avatarUrl = user.avatarUrl;
       } else {
         if (user.avatarUrl) {
           const image_id =
@@ -123,6 +123,32 @@ module.exports = {
         req.body.avatarUrl = req.file.path;
       }
       AuthModel.findOneAndUpdate({ _id: req.params.id }, req.body)
+        .then((student) => {
+          res.json({ data: student });
+        })
+        .catch((err) => {
+          res.json({ error: err });
+        });
+    });
+  },
+
+  editCurrentUser(req, res, next) {
+    AuthModel.findOne({ _id: req.account._id }).then((user) => {
+      if (!req.file) {
+        req.body.avatarUrl = user.avatarUrl;
+      } else {
+        if (user.avatarUrl) {
+          const image_id =
+            "dormitory" +
+            user.avatarUrl
+              .split("/upload/")[1]
+              .split("/dormitory")[1]
+              .split(".")[0];
+          cloudinary.uploader.destroy(image_id);
+        }
+        req.body.avatarUrl = req.file.path;
+      }
+      AuthModel.findOneAndUpdate({ _id: req.account._id }, req.body)
         .then((student) => {
           res.json({ data: student });
         })
