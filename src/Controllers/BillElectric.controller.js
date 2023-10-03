@@ -1,4 +1,5 @@
 const BillElectric = require("../models/BillElectric.model");
+const ContractModel = require("../models/Contract.model");
 
 module.exports = {
   getElectric(req, res, next) {
@@ -9,10 +10,13 @@ module.exports = {
   },
 
   getElectricRoom(req, res, next) {
-    BillElectric.findOne({ room_id: req.params.room_id})
-      .populate("room_id")
-      .then((electric) => res.json({ data: electric }))
-      .catch((error) => console.log(error));
+    ContractModel.findOne({ masv: req.account._id }).then((contract) => {
+      if (contract) {
+        BillElectric.findOne({ room_id: contract.room_id._id }).then(
+          (electric) => res.json({ data: electric })
+        );
+      }
+    });
   },
 
   getOneElectric(req, res, next) {

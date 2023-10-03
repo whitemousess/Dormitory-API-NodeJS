@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 const schema = new Schema(
   {
     name: { type: String, required: true },
-    description: { type: String, required: true },
+    description: { type: String },
     price: { type: String, required: true },
     status: { type: String, required: true, default: "0" },
   },
