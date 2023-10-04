@@ -9,7 +9,7 @@ module.exports = {
       .catch((err) => res.json({ error: err }));
   },
 
-  getContractStudent(req,res, next) {
+  getContractStudent(req, res, next) {
     ContractModel.findOne({ masv: req.account._id })
       .populate(["masv", "room_id", "user_id"])
       .then((contract) => res.json({ data: contract }))
