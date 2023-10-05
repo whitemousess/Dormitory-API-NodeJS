@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    masv: { type: mongoose.Types.ObjectId, ref: "Account", required: true },
+    masv: { type: mongoose.Types.ObjectId, ref: "Accounts", required: true },
     id_service: { type: mongoose.Types.ObjectId, ref: "Services" },
     phone: {type: String, required: true},
     status: { type: String, required: true, default: "0" },

@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
-    masv: {type: Number, default: null},
+    masv: {type: Number, default: 19999},
     username: { type: String},
     password: { type: String},
     fullName: { type: String },
-    sex: { type: Number },
+    gender: { type: Number },
     email: { type: String},
     phone: { type: String },
     address: { type: String },
@@ -18,4 +18,4 @@ const schema = new Schema({
 })
 
 
-module.exports = mongoose.model("Account", schema);
+module.exports = mongoose.model("Accounts", schema);

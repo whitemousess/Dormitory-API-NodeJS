@@ -3,9 +3,9 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    masv: { type: Schema.Types.ObjectId, ref: "Account", required: true },
+    masv: { type: Schema.Types.ObjectId, ref: "Accounts", required: true },
     room_id: { type: Schema.Types.ObjectId, ref: "Rooms", required: true },
-    user_id: { type: Schema.Types.ObjectId, ref: "Account", required: true },
+    user_id: { type: Schema.Types.ObjectId, ref: "Accounts", required: true },
     date_start: { type: String, required: true },
     date_end: { type: String, required: true },
     method_payment: { type: String },

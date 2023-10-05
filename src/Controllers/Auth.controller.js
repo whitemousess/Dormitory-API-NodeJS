@@ -45,41 +45,45 @@ module.exports = {
   },
 
   createUser(req, res, next) {
-    if (req.account.role === 0) {
-      const { username } = req.body;
-      AuthModel.findOne({ username })
+    const { username } = req.body;
+
+    if (!username) {
+      AuthModel.findOne({})
         .sort({ masv: -1 })
         .then((data) => {
-          if (data) {
-            return res.json({ error: "Invalid username" });
-          } else {
-            if (!req.body.username) {
-              let nextMasv = 19999;
-              if (data) nextMasv = data.masv + 1;
-              req.body.username = nextMasv;
-              req.body.masv = nextMasv;
-              req.body.password = "sv" + nextMasv;
-              req.body.email = nextMasv + "@gmail.com";
-            } else {
-              req.body.masv = null;
-            }
+          let nextMasv = 19999;
+          if (data) nextMasv = data.masv + 1;
 
-            if (!req.file) {
-              req.body.avatarUrl = null;
-            } else {
-              req.body.avatarUrl = req.file.path;
-            }
-            const account = new AuthModel(req.body);
-            account
-              .save()
-              .then((account) => {
-                res.status(201).json({ data: account });
-              })
-              .catch((error) => res.json({ error: error }));
-          }
+          // Xử lý dữ liệu req.body
+          req.body.username = nextMasv;
+          req.body.masv = nextMasv;
+          req.body.password = "sv" + nextMasv;
+          req.body.email = nextMasv + "@gmail.com";
+
+          const account = new AuthModel(req.body);
+          account
+            .save()
+            .then((account) => {
+              res.status(201).json({ data: account });
+            })
+            .catch((error) => res.json({ error: error }));
         });
     } else {
-      res.json({ error: "Không đủ quyền để xóa!" });
+      AuthModel.findOne({ username }).then((data) => {
+        if (data) {
+          return res.json({ error: "Username already exists" });
+        } else {
+          req.body.masv = null;
+
+          const account = new AuthModel(req.body);
+          account
+            .save()
+            .then((account) => {
+              res.status(201).json({ data: account });
+            })
+            .catch((error) => res.json({ error: error }));
+        }
+      });
     }
   },
 

@@ -2,7 +2,6 @@ const RoomModel = require("../models/Room.model");
 
 module.exports = {
   getManagerRoom(req, res, next) {
-    // Sử dụng phương thức aggregate để gộp hai bảng dữ liệu
     RoomModel.aggregate([
       {
         $lookup: {
@@ -12,18 +11,31 @@ module.exports = {
           as: "count_students",
         },
       },
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "count_students.masv",
+          foreignField: "_id",
+          as: "info_student",
+        },
+      },
+      {
+        $lookup: {
+          from: "accounts",
+          localField: "user_id",
+          foreignField: "_id",
+          as: "user_data",
+        },
+      },
     ])
-      .exec()
-      .then((result) => {
-        return RoomModel.populate(result, { path: "user_id" });
-      })
-      .then((populatedResult) => {
-        res.json({ data: populatedResult });
+      .then((finalPopulatedResult) => {
+        res.json({ data: finalPopulatedResult });
       })
       .catch((error) => {
         console.error(error);
         res.status(500).json({ error: "Lỗi trong quá trình gộp dữ liệu" });
       });
+    
   },
 
   getRoomById(req, res, next) {
