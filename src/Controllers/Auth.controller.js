@@ -64,7 +64,7 @@ module.exports = {
           account
             .save()
             .then((account) => {
-              res.status(201).json({ data: account });
+              res.json({ data: account });
             })
             .catch((error) => res.json({ error: error }));
         });
@@ -79,7 +79,7 @@ module.exports = {
           account
             .save()
             .then((account) => {
-              res.status(201).json({ data: account });
+              res.json({ data: account });
             })
             .catch((error) => res.json({ error: error }));
         }

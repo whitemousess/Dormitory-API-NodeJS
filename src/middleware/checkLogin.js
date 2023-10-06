@@ -20,6 +20,6 @@ module.exports = function checkLogin(req, res, next) {
         });
     });
   } catch (error) {
-    res.sendStatus(403).json({ error: error});
+    res.json({ error: error});
   }
 };
