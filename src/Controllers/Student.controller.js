@@ -10,12 +10,14 @@ module.exports = {
           foreignField: "masv",
           as: "count_contract",
         },
-      },{
+      },
+      {
         $match: {
-          "role": 1,
+          role: 1,
         },
       },
     ])
+      .sort({masv: 0})
       .then((populatedResult) => {
         res.json({ data: populatedResult });
       })

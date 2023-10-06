@@ -1,4 +1,5 @@
 const RoomModel = require("../models/Room.model");
+const ContractModel = require("../models/Contract.model");
 
 module.exports = {
   getManagerRoom(req, res, next) {
@@ -11,23 +12,11 @@ module.exports = {
           as: "count_students",
         },
       },
-      {
-        $lookup: {
-          from: "accounts",
-          localField: "count_students.masv",
-          foreignField: "_id",
-          as: "info_student",
-        },
-      },
-      {
-        $lookup: {
-          from: "accounts",
-          localField: "user_id",
-          foreignField: "_id",
-          as: "user_data",
-        },
-      },
     ])
+      .exec()
+      .then((result) => {
+        return RoomModel.populate(result, { path: "user_id" });
+      })
       .then((finalPopulatedResult) => {
         res.json({ data: finalPopulatedResult });
       })
@@ -35,7 +24,13 @@ module.exports = {
         console.error(error);
         res.status(500).json({ error: "Lỗi trong quá trình gộp dữ liệu" });
       });
-    
+  },
+
+  studentInRoom(req, res, next) {
+    ContractModel.find({ liquidation: 0 ,room_id: req.params.room_id})
+      .populate(["masv", "room_id", "user_id"])
+      .then((contract) => res.json({ data: contract }))
+      .catch((err) => res.json({ error: err }));
   },
 
   getRoomById(req, res, next) {

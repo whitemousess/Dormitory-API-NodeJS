@@ -1,5 +1,4 @@
 const ContractModel = require("../models/Contract.model");
-const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
   getContract(req, res, next) {
