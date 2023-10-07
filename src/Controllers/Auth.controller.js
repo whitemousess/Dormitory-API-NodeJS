@@ -31,9 +31,24 @@ module.exports = {
   },
 
   getAllUser(req, res, next) {
-    AuthModel.find({ role: 0 })
+    const { page, per_page, q } = req.query;
+    let objWhere = {};
+    objWhere.role = 0;
+
+    if (q) objWhere.username = new RegExp(q, "i");
+
+    AuthModel.find(objWhere)
       .then((data) => {
-        res.json({ data: data });
+        const currentPage = parseInt(page) || 1;
+        const dataPerPage = parseInt(per_page) || data.length;
+        const startIndex = (currentPage - 1) * dataPerPage;
+        const endIndex = startIndex + dataPerPage;
+        const totalItems = data.length;
+
+        const totalPages = Math.ceil(totalItems / dataPerPage);
+        const items = data.slice(startIndex, endIndex);
+
+        res.json({ data: items, currentPage, totalPages });
       })
       .catch((error) => res.json({ error: error }));
   },
@@ -51,9 +66,13 @@ module.exports = {
       AuthModel.findOne({})
         .sort({ masv: -1 })
         .then((data) => {
-          let nextMasv = 19999;
+          let nextMasv = 20000;
           if (data) nextMasv = data.masv + 1;
-
+          if (!req.file) {
+            req.body.avatarUrl = null;
+          } else {
+            req.body.avatarUrl = req.file.path;
+          }
           // Xử lý dữ liệu req.body
           req.body.username = nextMasv;
           req.body.masv = nextMasv;
@@ -74,7 +93,11 @@ module.exports = {
           return res.json({ error: "Username already exists" });
         } else {
           req.body.masv = null;
-
+          if (!req.file) {
+            req.body.avatarUrl = null;
+          } else {
+            req.body.avatarUrl = req.file.path;
+          }
           const account = new AuthModel(req.body);
           account
             .save()

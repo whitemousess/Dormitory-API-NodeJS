@@ -3,7 +3,9 @@ const ContractModel = require("../models/Contract.model");
 
 module.exports = {
   getManagerRoom(req, res, next) {
-    RoomModel.aggregate([
+    const { page, per_page, q } = req.query;
+
+    const conditions = [
       {
         $lookup: {
           from: "contracts",
@@ -12,22 +14,40 @@ module.exports = {
           as: "count_students",
         },
       },
-    ])
+      {
+        $match: {
+          ...(q ? { room_name: { $regex: `.*${q}.*`, $options: "i" } } : {}),
+        },
+      },
+    ];
+
+    RoomModel.aggregate(conditions)
       .exec()
       .then((result) => {
         return RoomModel.populate(result, { path: "user_id" });
       })
-      .then((finalPopulatedResult) => {
-        res.json({ data: finalPopulatedResult });
+      .then((data) => {
+        const currentPage = parseInt(page) || 1;
+        const dataPerPage = parseInt(per_page) || data.length;
+        const startIndex = (currentPage - 1) * dataPerPage;
+        const endIndex = startIndex + dataPerPage;
+        const totalItems = data.length;
+
+        const totalPages = Math.ceil(totalItems / dataPerPage);
+        const items = data.slice(startIndex, endIndex);
+        res.json({
+          data: items,
+          currentPage,
+          totalPages,
+        });
       })
       .catch((error) => {
-        console.error(error);
-        res.status(500).json({ error: "Lỗi trong quá trình gộp dữ liệu" });
+        res.json({ error: "Lỗi trong quá trình gộp dữ liệu" });
       });
   },
 
   studentInRoom(req, res, next) {
-    ContractModel.find({ liquidation: 0 ,room_id: req.params.room_id})
+    ContractModel.find({ liquidation: 0, room_id: req.params.room_id })
       .populate(["masv", "room_id", "user_id"])
       .then((contract) => res.json({ data: contract }))
       .catch((err) => res.json({ error: err }));

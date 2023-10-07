@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const schema = new Schema({
-    masv: {type: Number, default: 19999},
+    masv: {type: Number, default: null},
     username: { type: String},
     password: { type: String},
     fullName: { type: String },
