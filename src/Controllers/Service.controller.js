@@ -8,8 +8,6 @@ module.exports = {
 
     ServiceModel.find(objWhere)
       .then((data) => {
-        if (data.length === 0)
-          return res.json({ message: "No service yet" });
         const currentPage = parseInt(page) || 1;
         const dataPerPage = parseInt(per_page) || data.length;
         const startIndex = (currentPage - 1) * dataPerPage;

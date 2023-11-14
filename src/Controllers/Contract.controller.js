@@ -1,65 +1,46 @@
 const ContractModel = require("../models/Contract.model");
-const RoomModel = require("../models/Room.model");
 
 module.exports = {
   getContract(req, res, next) {
     ContractModel.find({ liquidation: 0 })
-      .populate(["student_id", "room_id", "user_id"])
-      .then((contract) => res.json(contract))
-      .catch((err) => res.json(err));
+      .populate(["masv", "room_id", "user_id"])
+      .then((contract) => res.json({ data: contract }))
+      .catch((err) => res.json({ error: err }));
   },
 
   getContractStudent(req, res, next) {
-    ContractModel.findOne({ student_id: req.user.id })
-      .populate(["student_id", "room_id", "user_id"])
+    ContractModel.findOne({ masv: req.account._id })
+      .populate(["masv", "room_id", "user_id"])
       .then((contract) => res.json({ data: contract }))
-      .catch((err) => res.json(err));
+      .catch((err) => res.json({ error: err }));
   },
 
   getLiquidation(req, res, next) {
     ContractModel.find({ liquidation: 1 })
-      .populate(["student_id", "room_id", "user_id"])
-      .then((contractLiq) => {
-        res.json({ data: contractLiq });
-      })
-      .catch((err) => res.json(err));
-  },
-
-  deleteContract(req, res, next) {
-    ContractModel.findOneAndDelete({ _id: req.params.id }, { new: true })
-      .then((result) => res.json(result))
-      .catch((err) => res.json(err));
+      .populate(["masv", "room_id", "user_id"])
+      .then((contract) => res.json({ data: contract }))
+      .catch((err) => res.json({ error: err }));
   },
 
   createContract(req, res, next) {
-    req.body.user_id = req.user.id;
+    req.body.user_id = req.account._id;
     const contract = new ContractModel(req.body);
     contract
       .save()
-      .then((contract) => {
-        RoomModel.findOneAndUpdate(
-          { _id: req.body.room_id },
-          { $push: { count_student: req.body } }
-        ).then(res.json({ data: contract }));
-      })
-      .catch((err) => res.json(err));
+      .then((result) => res.json({ data: result }))
+      .catch((err) => res.json({ error: err }));
+  },
+
+  deleteContract(req, res, next) {
+    ContractModel.findOneAndDelete({ _id: req.params.id }).then((result) =>
+      res.json({ data: result })
+    );
   },
 
   liquidationContract(req, res, next) {
     req.body.liquidation = 1;
-    ContractModel.findOneAndUpdate({ _id: req.params.id }, req.body, {
-      new: true,
-    })
-      .then((result) =>
-        RoomModel.findOneAndUpdate(
-          { _id: result.room_id },
-          {
-            $pull: {
-              count_student: { student_id: result.student_id },
-            },
-          }
-        ).then(res.json({ data: result }))
-      )
-      .catch((err) => res.json({ message: err }));
+    ContractModel.findOneAndUpdate({ _id: req.params.id }, req.body)
+      .then((contract) => res.json({ data: contract }))
+      .catch((error) => res.json({ error: error }));
   },
 };
