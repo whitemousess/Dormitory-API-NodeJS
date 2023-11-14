@@ -3,9 +3,7 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    user_id: { type: Schema.Types.ObjectId, ref: "accounts" },
-    title: { type: String },
-    description: { type: String },
+    room_id: { type: Schema.Types.ObjectId, ref: "Rooms" },
     status: { type: Number, default: 0 },
   },
   {
@@ -13,4 +11,4 @@ const schema = new Schema(
   }
 );
 
-module.exports = mongoose.model("reports", schema);
+module.exports = mongoose.model("BillRooms", schema);

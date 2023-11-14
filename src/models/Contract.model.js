@@ -3,16 +3,21 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    masv: { type: Schema.Types.ObjectId, ref: "Accounts", required: true },
+    student_id: {
+      type: Schema.Types.ObjectId,
+      ref: "accounts",
+      required: true,
+    },
     room_id: { type: Schema.Types.ObjectId, ref: "Rooms", required: true },
-    user_id: { type: Schema.Types.ObjectId, ref: "Accounts", required: true },
+    user_id: { type: Schema.Types.ObjectId, ref: "accounts", required: true },
     date_start: { type: String, required: true },
     date_end: { type: String, required: true },
-    method_payment: { type: String },
-    status: { type: String, required: true, default: "0" },
-    liquidation: { type: Number, default: 0 },
+    status: { type: Number, required: true, default: 0 },
+    liquidation: { type: Number, required: true, default: 0 },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
 module.exports = mongoose.model("Contracts", schema);

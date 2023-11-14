@@ -1,12 +1,35 @@
-const express = require("express");
-const router = express.Router();
-const ReportController = require("../Controllers/Report.controller");
+const router = require("express").Router();
 
-router.get("/get-report", ReportController.getReport);
-router.get("/get-report-user", ReportController.getReportUser);
-router.post("/create-report", ReportController.createReport);
+const {
+  verifyTokenAndAdmin,
+  verifyToken,
+} = require("../middleware/CheckLogin");
+const ReportController = require("../controllers/Report.controller");
 
-router.put("/:id/success-report", ReportController.successReport);
-router.delete("/:id/delete-report", ReportController.deleteReport);
+// create report
+router.put("/create-report", verifyToken, ReportController.createReport);
+// delete report
+router.get(
+  "/:id/delete-report",
+  verifyTokenAndAdmin,
+  ReportController.deleteReport
+);
+// success report
+router.get(
+  "/:id/success-report",
+  verifyTokenAndAdmin,
+  ReportController.successReport
+);
+// get report
+router.get(
+  "/get-all-report",
+  verifyTokenAndAdmin,
+  ReportController.getAllReport
+);
+router.get(
+  "/get-student-report",
+  verifyToken,
+  ReportController.getReportInStudent
+);
 
 module.exports = router;
