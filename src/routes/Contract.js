@@ -1,14 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
 
-const ContractController = require('../Controllers/Contract.controller')
+const {verifyToken, verifyTokenAndAdmin} = require("../middleware/CheckLogin")
+const ContractController = require('../controllers/Contract.controller')
 
-router.get('/get-contracts',ContractController.getContract);
-router.get('/get-contract-student',ContractController.getContractStudent);
-router.get('/get-liquidation',ContractController.getLiquidation);
+router.get('/get-contracts',verifyTokenAndAdmin,ContractController.getContract);
+router.get('/get-contract-student',verifyToken,ContractController.getContractStudent);
+router.get('/get-liquidation',verifyTokenAndAdmin,ContractController.getLiquidation);
 
-router.delete('/:id/delete-contracts',ContractController.deleteContract);
-router.post('/create-contracts',ContractController.createContract);
-router.get('/:id/liquidation-contracts',ContractController.liquidationContract);
+router.get('/:id/delete-contracts',verifyTokenAndAdmin,ContractController.deleteContract);
+router.put('/create-contracts',verifyTokenAndAdmin,ContractController.createContract);
+router.get('/:id/liquidation-contracts',verifyTokenAndAdmin,ContractController.liquidationContract);
 
 module.exports = router;
