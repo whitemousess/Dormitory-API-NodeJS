@@ -1,15 +1,39 @@
 const jwt = require("jsonwebtoken");
-const CryptoJS = require("crypto-js");
+const AuthModel = require("../models/Account.model");
 const cloudinary = require("../config/db/cloudinary");
 
-const AuthModel = require("../models/Account.model");
-
 module.exports = {
-  // get all user
-  getAllUsers(req, res, next) {
+  login(req, res, next) {
+    const { username, password } = req.body;
+    AuthModel.findOne({ username, password })
+      .then((auth) => {
+        if (!auth) {
+          return res
+            .status(404)
+            .json({ message: "Invalid username or password" });
+        } else {
+          var token = jwt.sign({ _id: auth._id }, process.env.ACCESS_TOKEN);
+          return res.json({
+            message: "Login successful",
+            data: auth,
+            token: token,
+            role: auth.role,
+          });
+        }
+      })
+      .catch((err) => {
+        res.status(404).json({ message: err });
+      });
+  },
+
+  getCurrent(req, res, next) {
+    res.json({ data: req.account });
+  },
+
+  getAllUser(req, res, next) {
     const { page, per_page, q } = req.query;
     let objWhere = {};
-    objWhere.role = true;
+    objWhere.role = 0;
 
     if (q) objWhere.username = new RegExp(q, "i");
 
@@ -29,31 +53,31 @@ module.exports = {
       .catch((error) => res.json({ error: error }));
   },
 
-  //   create user
+  getCurrentById(req, res, next) {
+    AuthModel.findOne({ _id: req.params.id }).then((account) => {
+      res.json({ data: account });
+    });
+  },
+
   createUser(req, res, next) {
     const { username } = req.body;
+
     if (!username) {
       AuthModel.findOne({})
-        .sort({ user_id: -1 })
+        .sort({ masv: -1 })
         .then((data) => {
-          let nextUserId = 20000;
-          if (data && data.user_id >= 20000) {
-            nextUserId = data.user_id + 1;
-          }
+          let nextMasv = 20000;
+          if (data) nextMasv = data.masv + 1;
           if (!req.file) {
             req.body.avatarUrl = null;
           } else {
             req.body.avatarUrl = req.file.path;
           }
-          const handlePassword = CryptoJS.AES.encrypt(
-            (req.body.password = "sv" + nextUserId),
-            process.env.ACCESS_TOKEN
-          ).toString();
           // Xử lý dữ liệu req.body
-          req.body.username = nextUserId;
-          req.body.user_id = nextUserId;
-          req.body.password = handlePassword;
-          req.body.email = nextUserId + "@gmail.com";
+          req.body.username = nextMasv;
+          req.body.masv = nextMasv;
+          req.body.password = "sv" + nextMasv;
+          req.body.email = nextMasv + "@gmail.com";
 
           const account = new AuthModel(req.body);
           account
@@ -68,18 +92,12 @@ module.exports = {
         if (data) {
           return res.json({ error: "Username already exists" });
         } else {
-          req.body.user_id = null;
+          req.body.masv = null;
           if (!req.file) {
             req.body.avatarUrl = null;
           } else {
             req.body.avatarUrl = req.file.path;
           }
-          req.body.role = true;
-          const handlePassword = CryptoJS.AES.encrypt(
-            req.body.password,
-            process.env.ACCESS_TOKEN
-          ).toString();
-          req.body.password = handlePassword;
           const account = new AuthModel(req.body);
           account
             .save()
@@ -92,111 +110,27 @@ module.exports = {
     }
   },
 
-  login(req, res, next) {
-    AuthModel.findOne({ username: req.body.username })
-      .then((auth) => {
-        if (!auth) {
-          return res
-            .status(404)
-            .json({ message: "Invalid username or password" });
-        } else {
-          const hashedPassword = CryptoJS.AES.decrypt(
-            auth.password,
-            process.env.ACCESS_TOKEN
-          ).toString(CryptoJS.enc.Utf8);
-
-          if (hashedPassword !== req.body.password) {
-            res.status(401).json({ message: "Invalid password" });
-          } else {
-            const accessToken = jwt.sign(
-              {
-                id: auth._id,
-                isAdmin: auth.role,
-              },
-              process.env.ACCESS_TOKEN,
-              { expiresIn: "3d" }
-            );
-
-            const { ...other } = auth._doc;
-            res.status(200).json({ ...other, token: accessToken });
-          }
-        }
-      })
-      .catch((err) => {
-        res.sendStatus(500);
-      });
-  },
-
   deleteUser(req, res, next) {
-    AuthModel.findOneAndDelete({ _id: req.params.id }).then((data) => {
-      if (data) {
-        if (data.avatarUrl) {
-          const image_id =
-            "dormitory" +
-            data.avatarUrl
-              .split("/upload/")[1]
-              .split("/dormitory")[1]
-              .split(".")[0];
-          cloudinary.uploader.destroy(image_id);
+    if (req.account.role === 0) {
+      AuthModel.findOneAndDelete({ _id: req.params.id }).then((data) => {
+        if (data) {
+          if (data.avatarUrl) {
+            const image_id =
+              "dormitory" +
+              data.avatarUrl
+                .split("/upload/")[1]
+                .split("/dormitory")[1]
+                .split(".")[0];
+            cloudinary.uploader.destroy(image_id);
+          }
+          res.json({ data: data });
+        } else {
+          res.sendStatus(404);
         }
-        res.json({ data: data });
-      } else {
-        res.sendStatus(404);
-      }
-    });
-  },
-
-  getCurrent(req, res, next) {
-    AuthModel.findById(req.user.id)
-      .then((user) => {
-        res.json({ data: user });
-      })
-      .catch(() =>
-        res.status(404).json({ message: "Username or password incorrect" })
-      );
-  },
-
-  getCurrentById(req, res, next) {
-    AuthModel.findById({ _id: req.params.id }).then((user) => {
-      res.json({ data: user });
-    });
-  },
-
-  editCurrentUser(req, res, next) {
-    AuthModel.findOne({ _id: req.user.id }).then((user) => {
-      if (!req.file) {
-        req.body.avatarUrl = user.avatarUrl;
-      } else {
-        if (user.avatarUrl) {
-          const image_id =
-            "dormitory" +
-            user.avatarUrl
-              .split("/upload/")[1]
-              .split("/dormitory")[1]
-              .split(".")[0];
-          cloudinary.uploader.destroy(image_id);
-        }
-        req.body.avatarUrl = req.file.path;
-      }
-
-      if (req.body.password == user.password) {
-        req.body.password = user.password;
-      } else {
-        const handlePassword = CryptoJS.AES.encrypt(
-          req.body.password,
-          process.env.ACCESS_TOKEN
-        ).toString();
-        req.body.password = handlePassword;
-      }
-
-      AuthModel.findOneAndUpdate({ _id: req.user.id }, req.body)
-        .then((student) => {
-          res.json({ data: student });
-        })
-        .catch((err) => {
-          res.json({ error: err });
-        });
-    });
+      });
+    } else {
+      res.json({ error: "Không đủ quyền để xóa" });
+    }
   },
 
   editUser(req, res, next) {
@@ -215,18 +149,33 @@ module.exports = {
         }
         req.body.avatarUrl = req.file.path;
       }
+      AuthModel.findOneAndUpdate({ _id: req.params.id }, req.body)
+        .then((student) => {
+          res.json({ data: student });
+        })
+        .catch((err) => {
+          res.json({ error: err });
+        });
+    });
+  },
 
-      if (req.body.password == user.password) {
-        req.body.password = user.password;
+  editCurrentUser(req, res, next) {
+    AuthModel.findOne({ _id: req.account._id }).then((user) => {
+      if (!req.file) {
+        req.body.avatarUrl = user.avatarUrl;
       } else {
-        const handlePassword = CryptoJS.AES.encrypt(
-          req.body.password,
-          process.env.ACCESS_TOKEN
-        ).toString();
-        req.body.password = handlePassword;
+        if (user.avatarUrl) {
+          const image_id =
+            "dormitory" +
+            user.avatarUrl
+              .split("/upload/")[1]
+              .split("/dormitory")[1]
+              .split(".")[0];
+          cloudinary.uploader.destroy(image_id);
+        }
+        req.body.avatarUrl = req.file.path;
       }
-
-      AuthModel.findByIdAndUpdate({ _id: req.params.id }, req.body)
+      AuthModel.findOneAndUpdate({ _id: req.account._id }, req.body)
         .then((student) => {
           res.json({ data: student });
         })

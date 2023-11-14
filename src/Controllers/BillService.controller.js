@@ -1,75 +1,36 @@
-const ContractModel = require("../models/Contract.model");
-const RoomModel = require("../models/Room.model");
-const BillServiceModel = require("../models/BillService.model");
+const BillModel = require("../models/BillService.model");
 
 module.exports = {
-  requestService(req, res, next) {
-    ContractModel.findOne({ student_id: req.user.id, liquidation: 0 })
-      .then((contract) => {
-        req.body.room_id = contract.room_id;
-        const BillService = new BillServiceModel(req.body);
-        BillService.save().then((bill) => {
-          RoomModel.findOneAndUpdate(
-            { _id: contract.room_id },
-            { $push: { Bill_service: { id: bill._id } } },
-            { new: true }
-          ).then((room) => res.json(room));
-        });
-      })
-      .catch((err) => res.json(err));
-  },
-
   getAllService(req, res, next) {
-    BillServiceModel.find()
-      .populate(["room_id", "service_id"])
-      .then((bill) => res.json(bill))
-      .catch((err) => res.json(err));
+    BillModel.find()
+      .populate(["masv", "id_service"])
+      .then((service) => res.json({ data: service }))
+      .catch((err) => res.json({ error: err }));
   },
 
-  getRoomService(req, res, next) {
-    ContractModel.findOne({ student_id: req.user.id, liquidation: 0 })
-      .then((contract) =>
-        BillServiceModel.find({ room_id: contract.room_id ,status: 0})
-          .populate(["room_id", "service_id"])
-          .then((room) => res.json(room))
-      )
-      .catch((err) => res.sendStatus(500));
+  getUserService(req, res, next) {
+    BillModel.find({ masv: req.account._id })
+      .populate(["masv", "id_service"])
+      .then((service) => res.json({ data: service }))
+      .catch((err) => res.json({ error: err }));
   },
 
-  successBill(req, res, next) {
-    const room_id = req.query.room_id;
-    const service_id = req.query.service_id;
-
-    if (!service_id) {
-      BillServiceModel.updateMany(
-        { room_id: room_id },
-        {
-          $set: { status: 1 },
-        }
-      )
-        .then((bill) => res.json(bill))
-        .catch((err) => res.sendStatus(500));
-    } else {
-      BillServiceModel.findOneAndUpdate(
-        { _id: service_id },
-        { status: 1 }
-      ).then((bill) => res.json(bill));
-    }
+  requestService(req, res, next) {
+    req.body.masv = req.account._id;
+    const bill = new BillModel(req.body);
+    bill
+      .save()
+      .then((result) => {
+        res.json({ data: result });
+      })
+      .catch((err) => {
+        res.json({ error: err });
+      });
   },
 
   deleteRequestService(req, res, next) {
-    const service_id = req.query.service_id;
-
-    BillServiceModel.findByIdAndDelete(service_id)
-      .then((bill) => {
-        RoomModel.findOneAndUpdate(
-          { _id: bill.room_id },
-          { $pull: { Bill_service: { id: bill._id } } },
-          { new: true }
-        )
-          .then((bill) => res.json(bill))
-          .catch((err) => res.json(err));
-      })
-      .catch((err) => res.json(err));
+    BillModel.findOneAndDelete({ _id: req.params.id })
+      .then((bill) => res.json({ susses: "OK", data: bill }))
+      .catch((error) => console.log(error));
   },
 };
