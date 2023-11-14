@@ -1,43 +1,20 @@
 const express = require("express");
 const router = express.Router();
-
-const AuthControllers = require("../controllers/Auth.controller");
-const {
-  verifyTokenAndAdmin,
-  verifyToken,
-} = require("../middleware/CheckLogin");
+const checkLogin = require("../middleware/checkLogin");
 const upload = require("../middleware/upload");
 
-router.post(
-  "/create-user",verifyTokenAndAdmin,
-  upload.single("avatar"),
-  AuthControllers.createUser
-);
-router.delete(
-  "/:id/delete-user",
-  verifyTokenAndAdmin,
-  AuthControllers.deleteUser
-);
-router.put(
-  "/edit-current-user",
-  verifyToken,
-  upload.single("avatar"),
-  AuthControllers.editCurrentUser
-);
+const AuthControllers = require("../Controllers/Auth.controller");
 
-router.get("/get-current", verifyToken, AuthControllers.getCurrent);
-router.get("/get-all-users", verifyTokenAndAdmin, AuthControllers.getAllUsers),
-  router.get(
-    "/:id/get-current",
-    verifyTokenAndAdmin,
-    AuthControllers.getCurrentById
-  );
-router.put(
-  "/:id/edit",
-  verifyTokenAndAdmin,
-  upload.single("avatar"),
-  AuthControllers.editUser
-);
+// create user
+router.post("/create-user", checkLogin,upload.single("avatar"),AuthControllers.createUser)
+router.delete("/:id/delete-user", checkLogin,AuthControllers.deleteUser)
+router.put("/edit-current-user", checkLogin,upload.single("avatar"),AuthControllers.editCurrentUser)
+
+// authentication 
+router.get("/get-all-user",checkLogin, AuthControllers.getAllUser);
+router.get("/get-current",checkLogin, AuthControllers.getCurrent);
+router.get("/:id/get-current",checkLogin, AuthControllers.getCurrentById);
+router.put("/:id/edit",checkLogin,upload.single("avatar"), AuthControllers.editUser);
 router.post("/login", AuthControllers.login);
 
 module.exports = router;

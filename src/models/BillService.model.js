@@ -3,14 +3,12 @@ const Schema = mongoose.Schema;
 
 const schema = new Schema(
   {
-    room_id: { type: Schema.Types.ObjectId, ref: "Rooms" },
-    service_id: { type: Schema.Types.ObjectId, ref: "Services" },
-    status: { type: Number, default: 0 },
-    phone: { type: String },
+    masv: { type: mongoose.Types.ObjectId, ref: "Accounts", required: true },
+    id_service: { type: mongoose.Types.ObjectId, ref: "Services" },
+    phone: {type: String, required: true},
+    status: { type: String, required: true, default: "0" },
   },
-  {
-    timestamps: true,
-  }
+  { timestamps: true }
 );
 
-module.exports = mongoose.model("billServices", schema);
+module.exports = mongoose.model("Bills-service", schema);
