@@ -1,4 +1,3 @@
-const AuthRouter = require("./Auth");
 const StudentRouter = require("./Student");
 const BillEWRouter = require("./BillEW");
 const BillRoomRouter = require("./BillRoom");
@@ -10,7 +9,6 @@ const ReportRouter = require("./Report");
 const PaymentRouter = require("./Payment");
 
 function route(app) {
-  app.use("/api/auth", AuthRouter);
   app.use("/api/student", StudentRouter);
   app.use("/api/rooms", RoomRouter);
   app.use("/api/services", ServiceRouter);
